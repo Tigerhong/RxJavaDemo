@@ -17,31 +17,41 @@ public class ApiWrapper {
 
     Api api;
 
-    public void queryCats(String query, final Callback<List<Cat>> catsCallback){
-        api.queryCats(query, new Api.CatsQueryCallback() {
+    public AsyncJob<List<Cat>> queryCats(final String query){
+        return new AsyncJob<List<Cat>>() {
             @Override
-            public void onCatListReceived(List<Cat> cats) {
-                catsCallback.onResult(cats);
-            }
+            public void start(final Callback<List<Cat>> callback) {
+                api.queryCats(query, new Api.CatsQueryCallback() {
+                    @Override
+                    public void onCatListReceived(List<Cat> cats) {
+                        callback.onResult(cats);
+                    }
 
-            @Override
-            public void onQueryFailed(Exception e) {
-                catsCallback.onError(e);
+                    @Override
+                    public void onQueryFailed(Exception e) {
+                        callback.onError(e);
+                    }
+                });
             }
-        });
+        };
     }
 
-    public void store(Cat cat, final Callback<String> uriCallback){
-        api.store(cat, new Api.StoreCallback() {
+    public AsyncJob<String> store(final Cat cat){
+        return new AsyncJob<String>(){
             @Override
-            public void onCatStored(String uri) {
-                uriCallback.onResult(uri);
-            }
+            public void start(final Callback<String> callback) {
+                api.store(cat, new Api.StoreCallback() {
+                    @Override
+                    public void onCatStored(String uri) {
+                        callback.onResult(uri);
+                    }
 
-            @Override
-            public void onStoreFailed(Exception e) {
-                uriCallback.onError(e);
+                    @Override
+                    public void onStoreFailed(Exception e) {
+                        callback.onError(e);
+                    }
+                });
             }
-        });
+        };
     }
 }
