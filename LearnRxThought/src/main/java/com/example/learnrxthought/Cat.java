@@ -7,6 +7,9 @@ package com.example.learnrxthought;
  * @author zhengong.hong@ubtrobot.com
  */
 public class Cat implements Comparable<Cat>{
+    /**
+     * 猫的图片
+     */
     String image;
     /**
      * 可爱值

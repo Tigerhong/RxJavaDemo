@@ -10,16 +10,31 @@ import java.util.List;
  */
 public interface Api {
     /**
+     * 猫查询的回调接口
+     */
+    interface CatsQueryCallback {
+        void onCatListReceived(List<Cat> cats);
+        void onError(Exception e);
+    }
+
+    /**
+     * 猫保存的回调接口
+     */
+    interface StoreCallback{
+        void onCatStored(String uri);
+        void onStoreFailed(Exception e);
+    }
+    /**
      * 根据qurery查询猫列表
      * @param query 关键字
      * @return
      */
-    List<Cat> queryCats(String query);
+    void  queryCats(String query, CatsQueryCallback catsQueryCallback);
 
     /**
      * 存储猫
      * @param cat
      * @return 返回服务器保存猫的地址
      */
-    String store(Cat cat);
+    String store(Cat cat, StoreCallback storeCallback);
 }
