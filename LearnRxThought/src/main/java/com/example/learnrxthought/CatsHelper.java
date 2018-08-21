@@ -22,34 +22,21 @@ public class CatsHelper {
      * @return
      */
     public AsyncJob<String> saveTheCutestCat(final String query) {
-        return new AsyncJob<String>() {
+        final AsyncJob<List<Cat>> catsListAsyncJob = apiWrapper.queryCats(query);
 
+        final AsyncJob<Cat> cutestCatAsyncJob = catsListAsyncJob.map(new Func<List<Cat>, Cat>() {
             @Override
-            public void start(final ApiWrapper.Callback<String> callback) {
-                apiWrapper.queryCats(query).start(new ApiWrapper.Callback<List<Cat>>() {
-                    @Override
-                    public void onResult(List<Cat> cats) {
-                        Cat cutest = findCutest(cats);
-                        apiWrapper.store(cutest).start(new ApiWrapper.Callback<String>() {
-                            @Override
-                            public void onResult(String result) {
-                                callback.onResult(result);
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                callback.onError(e);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        callback.onError(e);
-                    }
-                });
+            public Cat call(List<Cat> result) {
+                return findCutest(result);
             }
-        };
+        });
+        AsyncJob<String> storedUriAsyncJob = cutestCatAsyncJob.flatMap(new Func<Cat, AsyncJob<String>>() {
+            @Override
+            public AsyncJob<String> call(Cat cat) {
+                return apiWrapper.store(cat);
+            }
+        });
+        return storedUriAsyncJob;
     }
 
     /**

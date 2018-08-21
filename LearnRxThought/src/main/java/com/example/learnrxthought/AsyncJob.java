@@ -16,4 +16,56 @@ public abstract class AsyncJob<T> {
      * @param callback 回调的接口
      */
     public abstract void start(ApiWrapper.Callback<T> callback);
+
+    public <R> AsyncJob<R> map(final Func<T,R>func){
+        final AsyncJob<T>socrce=this;
+        return new AsyncJob<R>() {
+            @Override
+            public void start(final ApiWrapper.Callback<R> callback) {
+                socrce.start(new ApiWrapper.Callback<T>() {
+                    @Override
+                    public void onResult(T result) {
+                        R mapped = func.call(result);
+                        callback.onResult(mapped);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        callback.onError(e);
+                    }
+                });
+            }
+        };
+    }
+
+    public <R> AsyncJob<R> flatMap(final Func<T,AsyncJob<R>>func){
+        final AsyncJob<T>source=this;
+        return  new AsyncJob<R>() {
+            @Override
+            public void start(final ApiWrapper.Callback<R> callback) {
+                source.start(new ApiWrapper.Callback<T>() {
+                    @Override
+                    public void onResult(T result) {
+                        AsyncJob<R> mapped  = func.call(result);
+                        mapped.start(new ApiWrapper.Callback<R>() {
+                            @Override
+                            public void onResult(R result) {
+                                callback.onResult(result);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                callback.onError(e);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        callback.onError(e);
+                    }
+                });
+            }
+        };
+    }
 }
