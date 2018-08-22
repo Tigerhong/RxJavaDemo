@@ -8,7 +8,7 @@ import java.util.List;
  *包装了一下api接口，使其调用者调用时可以使用 泛型的callback 来接收接口返回的结果
  * @author zhengong.hong@ubtrobot.com
  */
-public class ApiWrapper {
+class ApiWrapper {
 
     public interface Callback<T> {
         void onResult(T result);
