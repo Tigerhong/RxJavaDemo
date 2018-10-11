@@ -38,9 +38,37 @@ public class CombineLatestActivity2 extends AppCompatActivity {
         setContentView(R.layout.activity_combine_latest);
         Log.i(TAG, "onCreate: ");
 //        refresh1();
-        refreshWithCombineLast();
+//        refreshWithCombineLast();
+        refreshWithCombineLast2();
     }
+    private void refreshWithCombineLast2() {
+        getColumnObservables()
+                .flatMap(types -> Observable.fromIterable(types)
+                        .map(type -> {
+                            switch (type) {
+                                case "A": return getUserObservablesA().startWith(new ArrayList<User>());
+                                case "B": return getUserObservablesB().startWith(new ArrayList<User>());
+                                case "C": return getUserObservablesC().startWith(new ArrayList<User>());
+                                default: throw new IllegalArgumentException();
+                            }
+                        })
+                        .<List<Observable<? extends List<? extends User>>>>collectInto(new ArrayList<>(), List::add)
+                        .toObservable()
+                )
+                .flatMap(requestObservables -> Observable.combineLatest(requestObservables, objects -> objects))
+                .flatMap(objects -> Observable.fromArray(objects)
+                        .<List<User>>collectInto(new ArrayList<>(), (items, o) -> items.addAll((List<User>) o))
+                        .toObservable()
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(data -> {
+                    Gson gson = new Gson();
+                    String s = gson.toJson(data);
+                    Log.i(TAG, "subscribe: " + s);
+                });
 
+    }
     private void refreshWithCombineLast() {
         getColumnObservables()
                 .map(types -> {
@@ -49,17 +77,32 @@ public class CombineLatestActivity2 extends AppCompatActivity {
                         switch (type) {
                             case "A":
                                 requestObservableList.add(
-                                        getUserObservablesA().startWith(new ArrayList<User>())
+                                        getUserObservablesA().startWith(new ArrayList<User>()).doOnNext(new Consumer<List<User>>() {
+                                            @Override
+                                            public void accept(List<User> users) throws Exception {
+                                                Log.i(TAG, "getUserObservablesA: ");
+                                            }
+                                        })
                                 );
                                 break;
                             case "B":
                                 requestObservableList.add(
-                                        getUserObservablesB().startWith(new ArrayList<User>())
+                                        getUserObservablesB().startWith(new ArrayList<User>()).doOnNext(new Consumer<List<User>>() {
+                                            @Override
+                                            public void accept(List<User> users) throws Exception {
+                                                Log.i(TAG, "getUserObservablesB: ");
+                                            }
+                                        })
                                 );
                                 break;
                             case "C":
                                 requestObservableList.add(
-                                        getUserObservablesC().startWith(new ArrayList<User>())
+                                        getUserObservablesC().startWith(new ArrayList<User>()).doOnNext(new Consumer<List<User>>() {
+                                            @Override
+                                            public void accept(List<User> users) throws Exception {
+                                                Log.i(TAG, "getUserObservablesC: ");
+                                            }
+                                        })
                                 );
                                 break;
                         }
@@ -69,7 +112,7 @@ public class CombineLatestActivity2 extends AppCompatActivity {
                 .flatMap(new Function<List<Observable<? extends List<? extends User>>>, ObservableSource<?>>() {
                     @Override
                     public ObservableSource<?> apply(List<Observable<? extends List<? extends User>>> observables) throws Exception {
-                        Log.i(TAG, "flatMap:");
+//                        Log.i(TAG, "flatMap:");
                         return Observable.combineLatest(observables, new Function<Object[], Object>() {
                             @Override
                             public List<User> apply(Object[] objects) throws Exception {
@@ -77,7 +120,7 @@ public class CombineLatestActivity2 extends AppCompatActivity {
                                 for (Object response : objects) {
                                     items.addAll((List<? extends User>) response);
                                 }
-                                Log.i(TAG, "combineLatest:");
+//                                Log.i(TAG, "combineLatest:");
                                 return items;
                             }
                         });
@@ -139,7 +182,7 @@ public class CombineLatestActivity2 extends AppCompatActivity {
         return Observable.create(new ObservableOnSubscribe<List<String>>() {
             @Override
             public void subscribe(ObservableEmitter<List<String>> e) throws Exception {
-                String[] column = {"C", "A", "B"};
+                String[] column = {"A", "B", "C"};
                 List<String> list = Arrays.asList(column);
                 e.onNext(list);
                 e.onComplete();
