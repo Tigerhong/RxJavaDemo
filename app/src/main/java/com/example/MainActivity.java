@@ -41,8 +41,44 @@ public class MainActivity extends AppCompatActivity {
 //        learntimer();
 //        learninterval();
 //        learndefer();
+        Observable.interval(10, TimeUnit.SECONDS)
+                .flatMap(new Function<Long, ObservableSource<Boolean>>() {
+                    @Override
+                    public ObservableSource<Boolean> apply(Long aLong) throws Exception {
+                        Observable<Boolean> stringObservable = Observable.create(new ObservableOnSubscribe<Boolean>() {
+                            @Override
+                            public void subscribe(ObservableEmitter<Boolean> e) throws Exception {
+                                new A().register(new A.B() {
+                                    @Override
+                                    public void success(boolean isSuccess) {
+                                        e.onNext(isSuccess);
+                                        e.onComplete();
+                                    }
+                                });
+                            }
+                        });
+                        return stringObservable;
+                    }
+                }).subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+
+            }
+        });
+
 
     }
+
+    private static class A {
+        interface B {
+            void success(boolean isSuccess);
+        }
+
+        public void register(B b) {
+            b.success(true);
+        }
+    }
+
 
     private void learndefer() {
         Observable.defer(new Callable<ObservableSource<String>>() {
@@ -88,14 +124,14 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long aLong) throws Exception {
-                        Log.d("JG",aLong.toString()); // 0
+                        Log.d("JG", aLong.toString()); // 0
                     }
                 });
     }
 
     private void learnFrom() {
-        int[]array={1,2,3,4};
-        List<Integer> list=new ArrayList();
+        int[] array = {1, 2, 3, 4};
+        List<Integer> list = new ArrayList();
         list.add(1);
         list.add(2);
         list.add(3);
@@ -109,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void learnJust() {
-        Observable.just(new TestClass(),new TestClass()).subscribe(new Observer<TestClass>() {
+        Observable.just(new TestClass(), new TestClass()).subscribe(new Observer<TestClass>() {
             @Override
             public void onSubscribe(Disposable d) {
                 Log.d(TAG, "onSubscribe");
@@ -132,12 +168,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    class TestClass{
-        private int filed=100;
-        TestClass(){
-            Log.i(TAG,"I'm created!");
+    class TestClass {
+        private int filed = 100;
+
+        TestClass() {
+            Log.i(TAG, "I'm created!");
         }
     }
+
     private void learnRxZIP() {
         Observable<Integer> observable1 = Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
@@ -221,8 +259,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public ObservableSource<String> apply(Integer integer) throws Exception {
                 List<String> list = new ArrayList<>();
-                for (int i=0;i<3;i++){
-                    list.add("I am value "+integer);
+                for (int i = 0; i < 3; i++) {
+                    list.add("I am value " + integer);
                 }
                 return Observable.fromIterable(list).delay(10, TimeUnit.MICROSECONDS);
             }
@@ -246,8 +284,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public ObservableSource<String> apply(Integer integer) throws Exception {
                 List<String> list = new ArrayList<>();
-                for (int i=0;i<3;i++){
-                    list.add("I am value "+integer);
+                for (int i = 0; i < 3; i++) {
+                    list.add("I am value " + integer);
                 }
                 return Observable.fromIterable(list).delay(10, TimeUnit.MICROSECONDS);
             }
@@ -270,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
         }).map(new Function<Integer, String>() {
             @Override
             public String apply(Integer integer) throws Exception {
-                return "This is result "+integer;
+                return "This is result " + integer;
             }
         }).subscribe(new Consumer<String>() {
 

@@ -15,15 +15,17 @@
         <activity android:name=".sample.LoginActivity" />
         <activity android:name=".operator.DoOperatorActivity" />
         <activity android:name=".sample.imitation.ImitationFlowActivity"></activity>
-        <activity android:name=".operator.CombineLatestActivity">
-
-        </activity>
-        <activity android:name=".operator.CatchActivity">
+        <activity android:name=".operator.CombineLatestActivity2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".operator.CombineLatestActivity">
+        </activity>
+        <activity android:name=".operator.CatchActivity">
+
         </activity>
     </application>
 

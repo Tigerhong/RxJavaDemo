@@ -41,7 +41,8 @@ public class CombineLatestActivity extends AppCompatActivity {
                 .subscribe(new Consumer<User>() {
                     @Override
                     public void accept(User user) throws Exception {
-                        Log.i(TAG, "accept: 获取成功");
+                        Log.i(TAG, "accept: 获取成功当前用户数据 用户名为:"+user.name+"  用户id："+user.id);
+                        Log.i(TAG, "accept: 获取成功当前用户数据 用户名列表"+user.friendInfoList.toString());
                     }
                 });
     }
