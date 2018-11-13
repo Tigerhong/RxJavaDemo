@@ -1,1 +1,1 @@
-include ':app', ':myapplication', ':LearnRxThought'
+include ':app', ':myapplication', ':LearnRxThought', ':TestMerge'
